@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analizador Léxico y Sintáctico</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f8ff; /* Color celeste */
+        }
+
+        .container {
+            width: 80%;
+            max-width: 800px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            color: white;
+        }
+
+        button.analyze {
+            background-color: #28a745; /* Botón verde */
+        }
+
+        button.analyze:hover {
+            background-color: #218838;
+        }
+
+        button.clear {
+            background-color: #dc3545; /* Botón rojo */
+        }
+
+        button.clear:hover {
+            background-color: #c82333;
+        }
+
+        .bottom-section {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+
+        .bottom-section table {
+            width: 45%;
+            border-collapse: collapse;
+            margin: 0 auto;
+            background-color: white; /* Fondo blanco para las tablas */
+        }
+
+        table, th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .syntax-section {
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .syntax-section table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white; /* Fondo blanco para la tabla */
+        }
+
+        .syntax-section th, .syntax-section td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .syntax-section th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Analizador Léxico y Sintáctico</h1>
+        
+        <!-- Formulario de análisis léxico -->
+        <form id="lexicalForm">
+            <textarea id="inputText" placeholder="Inserta un token aquí"></textarea>
+            <button type="button" class="analyze" onclick="analyzeCode()">Analizar</button>
+            <button type="button" class="clear" onclick="clearFields()">Borrar</button>
+        </form>
+
+        <!-- Sección inferior con tablas -->
+        <div class="bottom-section">
+            <!-- Tabla: Tokens encontrados -->
+            <div>
+                <h2>Tokens Encontrados</h2>
+                <table id="tokensTable">
+                    <tr>
+                        <th>Token</th>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Tabla: Caracteres y Símbolos -->
+            <div>
+                <h2>Caracteres y Símbolos</h2>
+                <table id="symbolTable">
+                    <tr>
+                        <th>Caracteres</th>
+                        <th>Símbolos</th>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Sección para análisis sintáctico -->
+        <div class="syntax-section">
+            <h2>Análisis Sintáctico</h2>
+            <table id="syntaxTable">
+                <tr>
+                    <th>Línea</th>
+                    <th>Tipo de Estructura</th>
+                    <th>Estructura Correcta</th>
+                    <th>Estructura Incorrecta</th>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        function analyzeCode() {
+            // Obtener el texto ingresado
+            const inputText = document.getElementById("inputText").value;
+
+            // Limpiar las tablas anteriores
+            document.getElementById("tokensTable").innerHTML = "<tr><th>Token</th></tr>";
+            document.getElementById("symbolTable").innerHTML = "<tr><th>Caracteres</th><th>Símbolos</th></tr>";
+            document.getElementById("syntaxTable").innerHTML = "<tr><th>Línea</th><th>Tipo de Estructura</th><th>Estructura Correcta</th><th>Estructura Incorrecta</th></tr>";
+
+            // Obtener los tokens y procesarlos
+            const tokens = inputText.split(/\s+/);
+            const foundTokens = [];
+
+            tokens.forEach(function(token, index) {
+                // Procesar el token "for"
+                if (token.toLowerCase() === 'for') {
+                    addTokenToTable('RESERVADA', token);
+                    foundTokens.push(token);
+                }
+                // Procesar el token "hola"
+                else if (token.toLowerCase() === 'hola') {
+                    addTokenToTable('HOLA', token);
+                    foundTokens.push(token);
+                }
+                // Procesar el token "mundo"
+                else if (token.toLowerCase() === 'mundo') {
+                    addTokenToTable('MUNDO', token);
+                    foundTokens.push(token);
+                }
+                // Procesar el token "hola mundo"
+                else if (token.toLowerCase() === 'hola' && tokens[index + 1] === 'mundo') {
+                    addTokenToTable('IDENTIFICADOR', 'hola mundo');
+                    foundTokens.push('hola mundo');
+                }
+
+                // Agregar a la tabla de análisis sintáctico
+                const syntaxRow = document.createElement("tr");
+                const lineCell = document.createElement("td");
+                const typeCell = document.createElement("td");
+                const correctCell = document.createElement("td");
+                const incorrectCell = document.createElement("td");
+
+                lineCell.textContent = index;
+                typeCell.textContent = token;
+
+                if (token.toLowerCase() === 'for' || token.toLowerCase() === 'hola' || token.toLowerCase() === 'mundo' || (token.toLowerCase() === 'hola' && tokens[index + 1] === 'mundo')) {
+                    correctCell.textContent = '✓';
+                    incorrectCell.textContent = '';
+                } else {
+                    correctCell.textContent = '';
+                    incorrectCell.textContent = '✗';
+                }
+
+                syntaxRow.appendChild(lineCell);
+                syntaxRow.appendChild(typeCell);
+                syntaxRow.appendChild(correctCell);
+                syntaxRow.appendChild(incorrectCell);
+                document.getElementById("syntaxTable").appendChild(syntaxRow);
+            });
+
+            // Rellenar la tabla de caracteres y símbolos
+            foundTokens.forEach(function(token) {
+                const row = document.createElement("tr");
+                const charCell = document.createElement("td");
+                const symbolCell = document.createElement("td");
+
+                if (token.toLowerCase() === 'for') {
+                    charCell.textContent = 'Reservada'; // Indicar que es una palabra reservada
+                } else {
+                    charCell.textContent = 'Identificador'; // Indicar que es un identificador
+                }
+                symbolCell.textContent = token; // Mostrar el token
+
+                row.appendChild(charCell);
+                row.appendChild(symbolCell);
+                document.getElementById("symbolTable").appendChild(row);
+            });
+
+            // Limpiar el área de texto
+            document.getElementById("inputText").value = '';
+        }
+
+        function addTokenToTable(tokenType, tokenValue) {
+            const row = document.createElement("tr");
+            const cell = document.createElement("td");
+            cell.textContent = tokenValue;
+            row.appendChild(cell);
+            document.getElementById("tokensTable").appendChild(row);
+        }
+
+        function clearFields() {
+            // Limpiar todas las tablas y el área de texto
+            document.getElementById("tokensTable").innerHTML = "<tr><th>Token</th></tr>";
+            document.getElementById("symbolTable").innerHTML = "<tr><th>Caracteres</th><th>Símbolos</th></tr>";
+            document.getElementById("syntaxTable").innerHTML = "<tr><th>Línea</th><th>Tipo de Estructura</th><th>Estructura Correcta</th><th>Estructura Incorrecta</th></tr>";
+            document.getElementById("inputText").value = '';
+        }
+    </script>
+</body>
+</html>
